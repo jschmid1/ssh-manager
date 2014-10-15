@@ -1,0 +1,28 @@
+SSH Connection Manager
+
+
+
+
+_______________________
+
+
+Features:
+
+- add ips
+- add notes / port / hostname / custom params to connection
+- modify your entry
+- list all your entries
+- connect
+- change behavior in config file (delete obsolete or old connections)
+- sort them by frequency
+- allow different settings for a connection (nesting)
+- set alias for favourite connection -> quickconnect 
+- search
+
+
+
+______________________
+
+
+
+
