@@ -22,10 +22,15 @@ Or install it yourself as:
 sshm add 192.168.0.1 -u -p -h -n 
 
 -a == add
+
 -u == user
+
 -p == port[optional]
+
 -h == hostname[optional]
+
 -n == notes[optional]
+
 
 sshm 
 
@@ -36,7 +41,10 @@ sshm
 5. 188.42.69.88 | you added
 connect to: [1-5]
 
+
+
 sshm update [1-5]
+
 sshm delete [1-5]
 
 
