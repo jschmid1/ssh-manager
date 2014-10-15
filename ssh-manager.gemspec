@@ -5,13 +5,13 @@ require 'ssh/manager/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "ssh-manager"
-  spec.version       = Ssh::Manager::VERSION
-  spec.authors       = ["Joshua Schmid"]
-  spec.email         = ["jschmid@suse.com"]
+  spec.version       = SSH::Manager::VERSION
+  spec.authors       = ["Joshua Schmid, Juraj Hura"]
+  spec.email         = ["jschmid@suse.com, jhura@suse.cz"]
   spec.description   = %q{TODO: Write a gem description}
   spec.summary       = %q{TODO: Write a gem summary}
   spec.homepage      = ""
-  spec.license       = "MIT"
+  spec.license       = "GPL"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
