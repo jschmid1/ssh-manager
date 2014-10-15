@@ -19,7 +19,7 @@ Or install it yourself as:
 
 ## Usage
 
-sshm add 192.168.0.1 -u -p -h -n 
+`sshm add 192.168.0.1 -u -p -h -n` 
 
 -a == add
 
@@ -32,7 +32,7 @@ sshm add 192.168.0.1 -u -p -h -n
 -n == notes[optional]
 
 
-sshm 
+`sshm`
 
 1. 192.168.0.1 | your first connection
 2. 10.120.0.1 |  some
@@ -43,9 +43,9 @@ connect to: [1-5]
 
 
 
-sshm update [1-5]
+`sshm update [1-5]`
 
-sshm delete [1-5]
+`sshm delete [1-5]`
 
 
 
