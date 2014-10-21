@@ -1,4 +1,7 @@
-require '../manager'
+require_relative 'db'
+require 'debugger'
 
-puts SSH::Manager::VERSION
+#debugger
 
+@connections = SSH::Manager::Database.new.get_connection_data
+@connections.map{|x| puts "#{x} \n"}
