@@ -10,8 +10,9 @@ module SSH
 
       def connect_to(id)
         #rewrite, find ip and settings by ID
-        SSH::Manager::Database.new.get_connection_data[id-1]
-        ip.to_i
+        ip = SSH::Manager::Database.new.get_connection_data[id.to_i-1][0]
+        user = SSH::Manager::Database.new.get_connection_data[id.to_i-1][1]
+        debugger
         %x(xfce4-terminal --command="ssh #{user}@#{ip}")
       end
 
@@ -42,7 +43,7 @@ module SSH
           cnt +=1
           print "#{cnt}: "
           con.each do |para|
-            print "#{para} "
+            print "#{para} | "
           end
           puts "\n"
         end
