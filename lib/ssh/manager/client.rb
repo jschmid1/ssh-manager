@@ -48,7 +48,7 @@ module SSH
             @options[:connect] = opt
           end
           @options[:delete] = false
-          opts.on( '-d', '--delete', 'delete connection <id>' ) do |opt|
+          opts.on( '-d', '--delete id', 'delete connection <id>' ) do |opt|
             @options[:delete] = opt
           end
           @options[:list] = false

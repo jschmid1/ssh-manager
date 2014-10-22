@@ -30,8 +30,7 @@ module SSH
       end
 
       def delete(id)
-        debugger
-        id = id - 1
+        id = id.to_i - 1
         SSH::Manager::Database.new.delete_connection(SSH::Manager::Database.new.get_connection_data[id][0])
       end
 
