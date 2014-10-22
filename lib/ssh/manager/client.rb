@@ -30,6 +30,9 @@ module SSH
         elsif @options[:list]
           puts 'Listing ..'
           cli.new(@options).list_all
+        elsif @options[:update]
+          puts 'Updating ..'
+          cli.new(@options).update(@options[:update])
         else
           puts @optparse
           exit
@@ -50,6 +53,10 @@ module SSH
           @options[:delete] = false
           opts.on( '-d', '--delete id', 'delete connection <id>' ) do |opt|
             @options[:delete] = opt
+          end
+          @options[:update] = false
+          opts.on( '-u', '--delete id', 'update connection <id>' ) do |opt|
+            @options[:update] = opt
           end
           @options[:list] = false
           opts.on( '-l', '--list', 'list all connections' ) do

@@ -9,10 +9,8 @@ module SSH
       end
 
       def connect_to(id)
-        #rewrite, find ip and settings by ID
         ip = SSH::Manager::Database.new.get_connection_data[id.to_i-1][0]
         user = SSH::Manager::Database.new.get_connection_data[id.to_i-1][1]
-        debugger
         %x(xfce4-terminal --command="ssh #{user}@#{ip}")
       end
 
@@ -49,6 +47,22 @@ module SSH
         end
       end
 
+
+      def update(id)
+        puts "Username: "
+        user =$stdin.gets.chomp
+        user = SSH::Manager::Database.new.get_connection_data[id.to_i][1] if user == ''
+        puts "Hostname: "
+        hostname = $stdin.gets.chomp
+        hostname = SSH::Manager::Database.new.get_connection_data[id.to_i][2] if hostname == ''
+        puts "port: "
+        port = $stdin.gets.chomp
+        port = SSH::Manager::Database.new.get_connection_data[id.to_i][3] if port == ''
+        puts "Notes: "
+        note = $stdin.gets.chomp
+        note = SSH::Manager::Database.new.get_connection_data[id.to_i][4] if note == ''
+        SSH::Manager::Database.new.update_connection(SSH::Manager::Database.new.get_connection_data[id.to_i][0], user, hostname, port.to_i, note)
+      end
     end
   end
 end

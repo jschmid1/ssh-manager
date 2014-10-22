@@ -31,6 +31,10 @@ module SSH
         @connections.where(:ip => ip).delete
       end
 
+      def update_connection(ip, user, hostname, port, note)
+        @connections.where(:ip => ip).update(:user => user, :hostname => hostname, :port => port, :note => note)
+      end
+
     end
   end
 end
