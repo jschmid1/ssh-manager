@@ -6,25 +6,47 @@ module SSH
 
       def initialize(opts = {})
         @options = opts
-        list_all if @options[:list]
       end
 
-      def connect_to(ip, user, params=[] )
+      def connect_to(id)
+        #rewrite, find ip and settings by ID
+        SSH::Manager::Database.new.get_connection_data[id-1]
         ip.to_i
         %x(xfce4-terminal --command="ssh #{user}@#{ip}")
       end
 
-      def add_connection(ip, user, hostname, port, note)
+      def add_connection(ip)
+        puts "Username: "
+        user =$stdin.gets.chomp
+        user = 'root' if user == ''
+        puts "Hostname: "
+        hostname = $stdin.gets.chomp
+        puts "port: "
+        port = $stdin.gets.chomp
+        port = 22 if port == ''
+        puts "Notes: "
+        note = $stdin.gets.chomp
         SSH::Manager::Database.new.add_new_connection(ip, user, hostname, port, note)
       end
 
-      def delete(ip, user, hostname, port, note)
-        #TODO
+      def delete(id)
+        debugger
+        id = id - 1
+        SSH::Manager::Database.new.delete_connection(SSH::Manager::Database.new.get_connection_data[id][0])
       end
 
       def list_all
-        @connections = SSH::Manager::Database.new.get_connection_data
-        @connections.map{|x| "#{x.map {|y| print "#{y} "}}"}
+        cnt = 0
+        # TODO: add indentation functionality with stringlenght etc..
+        puts "ID: IP:        USERNAME:      HOSTNAME:     PORT:    NOTES:"
+        SSH::Manager::Database.new.get_connection_data.each do |con|
+          cnt +=1
+          print "#{cnt}: "
+          con.each do |para|
+            print "#{para} "
+          end
+          puts "\n"
+        end
       end
 
     end

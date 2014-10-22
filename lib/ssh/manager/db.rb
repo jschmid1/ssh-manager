@@ -22,7 +22,13 @@ module SSH
       end
 
       def add_new_connection(ip, user='root', hostname='', port=22, note='')
+        # default params are currently useless FIXME
         @connections.insert(:ip => ip, :user => user, :hostname => hostname, :port => port, :note => note)
+      end
+
+      def delete_connection(ip)
+        # add && :user => user to ensure deletion
+        @connections.where(:ip => ip).delete
       end
 
     end
