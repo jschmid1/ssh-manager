@@ -1,30 +1,72 @@
 #require_relative "../manager"
 require 'debugger'
+require 'optparse'
+require_relative 'db'
+require_relative 'client'
 
 module SSH
   module Manager
     class Client
 
-      @list_arr = {1 => ["192.168.0.1", "foo"],
-                   2 => ["192.168.0.2", "root"],
-                   3 => ["192.168.0.3", "bar"]
-                  }
+      attr_accessor :options
 
-      # List all entries
-      def self.list_all(list)
-        (1..list.size).each do |x|
-          puts "#{x}: #{list[x]}"
+      def initialize(argv)
+        @options = {}
+        @argv = argv
+        extract_options
+      end
+
+      def execute!
+        cli = SSH::Manager::Cli
+        if @options[:add]
+          puts 'Adding ..'
+          cli.new(@options).add_connection(@options[:add])
+        elsif @options[:connect]
+          puts 'Connecting ..'
+          cli.new(@options).connect_to(@options[:connect])
+        elsif @options[:delete]
+          puts 'Deleting ..'
+          cli.new(@options).delete(@options[:delete])
+        elsif @options[:list]
+          puts 'Listing ..'
+          cli.new(@options).list_all
+        else
+          puts @optparse
+          exit
         end
       end
 
-      # Connect to specified connection with optional params
-      def self.connect(ip, user, param=[] )
-        ip.to_i
-        #add params
-        %x(xfce4-terminal --command="ssh #{user}@#{ip}")
+      def extract_options
+        @optparse = OptionParser.new do |opts|
+          opts.banner = "Usage: sshm [options] ..."
+          @options[:add] = false
+          opts.on( '-a', '--add ip', 'Add ip to your Connection list' ) do |opt|
+            @options[:add] = opt
+          end
+          @options[:connect] = false
+          opts.on( '-c', '--connect id', 'connect to <id>' ) do |opt|
+            @options[:connect] = opt
+          end
+          @options[:delete] = false
+          opts.on( '-d', '--delete', 'delete connection <id>' ) do |opt|
+            @options[:delete] = opt
+          end
+          @options[:list] = false
+          opts.on( '-l', '--list', 'list all connections' ) do
+            @options[:list] = true
+          end
+          opts.on( '-h', '--help', 'Display this screen' ) do
+            puts opts
+            exit
+          end
+          opts.on( '-v', '--version', 'Print programs version' ) do
+            puts SSH::Manager::VERSION
+            exit
+          end
+        end
+        @optparse.parse(@argv)
       end
     end
   end
 end
-
 
