@@ -18,6 +18,8 @@ Features:
 - allow different settings for a connection (nesting)
 - set alias for favourite connection -> quickconnect 
 - search
+- connect to all ips in range 192.168.0.1..190 found..
+- connect to all ips with 'admin' in notes
 
 
 
