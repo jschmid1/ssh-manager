@@ -1,4 +1,7 @@
 require_relative 'db'
+require 'yaml'
+FileUtils.cp ("#{File.dirname(__FILE__)}/../../../config/settings.yml"), ("#{File.join(Dir.home)}" + '/.config/sshm/') unless File.exists?(("#{File.join(Dir.home)}" + '/.config/sshm/settings.yml'))
+CONFIG = YAML.load_file("#{File.join(ENV['HOME'])}/.config/sshm/settings.yml")
 
 module SSH
   module Manager
@@ -11,7 +14,9 @@ module SSH
       def connect_to(id)
         ip = SSH::Manager::Database.new.get_connection_data[id.to_i-1][0]
         user = SSH::Manager::Database.new.get_connection_data[id.to_i-1][1]
-        %x(xfce4-terminal --command="ssh #{user}@#{ip}")
+        # different terminals different behaviour .. i.e. xterm -C 'ssh...'
+        # TODO: add function for different terms
+        %x(#{CONFIG['terminal']} --command="ssh #{user}@#{ip}")
       end
 
       def add_connection(ip)
@@ -22,7 +27,7 @@ module SSH
         hostname = $stdin.gets.chomp
         puts "port: "
         port = $stdin.gets.chomp
-        port = 22 if port == ''
+        port = "22" if port == ''
         puts "Notes: "
         note = $stdin.gets.chomp
         SSH::Manager::Database.new.add_new_connection(ip, user, hostname, port, note)
@@ -37,11 +42,11 @@ module SSH
         cnt = 0
         # TODO: add indentation functionality with stringlenght etc..
         connections = Hash[SSH::Manager::Database.new.get_connection_data.collect { |x| [cnt+=1, x]}]
-        puts "ID: IP:             USERNAME:      HOSTNAME:     PORT:    NOTES:"
+        puts "ID IP                  USERNAME            HOSTNAME            PORT                NOTES"
         connections.each do |x|
           print "#{x[0]}: "
           x[1].each do |a|
-            printf("%8s", "#{a}")
+            printf "%-20s", a
           end
           puts "\n"
         end
@@ -61,11 +66,14 @@ module SSH
         puts "Notes: "
         note = $stdin.gets.chomp
         note = SSH::Manager::Database.new.get_connection_data[id.to_i][4] if note == ''
-        SSH::Manager::Database.new.update_connection(SSH::Manager::Database.new.get_connection_data[id.to_i][0], user, hostname, port.to_i, note)
+        SSH::Manager::Database.new.update_connection(SSH::Manager::Database.new.get_connection_data[id.to_i][0], user, hostname, port, note)
       end
 
       def search_for(term)
-        puts SSH::Manager::Database.new.search_for(term).all
+        SSH::Manager::Database.new.search_for(term).each do |x|
+          puts x.all
+        end
+        puts "All results for searchterm: #{term}"
       end
 
     end
