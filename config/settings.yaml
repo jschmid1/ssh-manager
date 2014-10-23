@@ -1,0 +1,2 @@
+editor = "xfce4-terminal"
+deletion_interval = "never" # 1week, 5weeks, 20weeks,
