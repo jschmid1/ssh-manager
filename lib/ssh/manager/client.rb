@@ -1,5 +1,4 @@
 #require_relative "../manager"
-require 'debugger'
 require 'optparse'
 require_relative 'db'
 require_relative 'client'
