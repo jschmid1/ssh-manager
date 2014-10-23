@@ -35,6 +35,16 @@ module SSH
         @connections.where(:ip => ip).update(:user => user, :hostname => hostname, :port => port, :note => note)
       end
 
+      def search_for(term)
+        # check online: search for 'contains' not for complete matching
+        # FIXME only ip gets checked ..
+        @connections.where(:ip => term)
+        @connections.where(:user => term)
+        @connections.where(:hostname => term)
+        @connections.where(:port => term)
+        @connections.where(:note => term)
+      end
+
     end
   end
 end

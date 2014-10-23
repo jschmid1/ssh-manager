@@ -33,6 +33,9 @@ module SSH
         elsif @options[:update]
           puts 'Updating ..'
           cli.new(@options).update(@options[:update])
+        elsif @options[:search]
+          puts 'Searching ..'
+          cli.new(@options).search_for(@options[:search])
         else
           puts @optparse
           exit
@@ -57,6 +60,10 @@ module SSH
           @options[:update] = false
           opts.on( '-u', '--delete id', 'update connection <id>' ) do |opt|
             @options[:update] = opt
+          end
+          @options[:search] = false
+          opts.on( '-s', '--search string', 'search connection for given criteria' ) do |opt|
+            @options[:search] = opt
           end
           @options[:list] = false
           opts.on( '-l', '--list', 'list all connections' ) do

@@ -35,6 +35,7 @@ module SSH
 
       def list_all
         cnt = 0
+        # FIXME: change the way of identifying the object. hash maybe ?
         # TODO: add indentation functionality with stringlenght etc..
         puts "ID: IP:        USERNAME:      HOSTNAME:     PORT:    NOTES:"
         SSH::Manager::Database.new.get_connection_data.each do |con|
@@ -46,7 +47,6 @@ module SSH
           puts "\n"
         end
       end
-
 
       def update(id)
         puts "Username: "
@@ -63,6 +63,11 @@ module SSH
         note = SSH::Manager::Database.new.get_connection_data[id.to_i][4] if note == ''
         SSH::Manager::Database.new.update_connection(SSH::Manager::Database.new.get_connection_data[id.to_i][0], user, hostname, port.to_i, note)
       end
+
+      def search_for(term)
+        puts SSH::Manager::Database.new.search_for(term).all
+      end
+
     end
   end
 end
