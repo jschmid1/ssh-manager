@@ -35,17 +35,17 @@ module SSH
 
       def list_all
         cnt = 0
-        # FIXME: change the way of identifying the object. hash maybe ?
         # TODO: add indentation functionality with stringlenght etc..
-        puts "ID: IP:        USERNAME:      HOSTNAME:     PORT:    NOTES:"
-        SSH::Manager::Database.new.get_connection_data.each do |con|
-          cnt +=1
-          print "#{cnt}: "
-          con.each do |para|
-            print "#{para} | "
+        connections = Hash[SSH::Manager::Database.new.get_connection_data.collect { |x| [cnt+=1, x]}]
+        puts "ID: IP:             USERNAME:      HOSTNAME:     PORT:    NOTES:"
+        connections.each do |x|
+          print "#{x[0]}: "
+          x[1].each do |a|
+            printf("%8s", "#{a}")
           end
           puts "\n"
         end
+
       end
 
       def update(id)
