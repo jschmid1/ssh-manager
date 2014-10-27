@@ -19,20 +19,19 @@ Or install it yourself as:
 
 ## Usage
 
-`sshm add 192.168.0.1 -u -p -h -n` 
 
--a == add
+Usage: sshm [options] ...
+    -a, --add ip                     Add ip to your Connection list
+    -c, --connect id                 connect to <id>
+    -d, --delete id                  delete connection <id>
+    -u, --update id                  update connection <id>
+    -s, --search string              search connection for given criteria
+    -l, --list                       list all connections
+    -h, --help                       Display this screen
+    -v, --version                    Print programs version
 
--u == user
 
--p == port[optional]
-
--h == hostname[optional]
-
--n == notes[optional]
-
-
-`sshm`
+`sshm -l`
 
 1. 192.168.0.1 | your first connection
 2. 10.120.0.1 |  some
@@ -42,11 +41,23 @@ Or install it yourself as:
 connect to: [1-5]
 
 
+`sshm -u [1-5]`
 
-`sshm update [1-5]`
+`sshm -d [1-5]`
 
-`sshm delete [1-5]`
+`sshm -c [1-5]`
 
+or quickconnect
+
+`sshm [1-5]`
+
+
+
+## Config
+
+Configfile and database is located in ~/.config/sshm/
+
+Change the `terminal` entry to your prefered term.
 
 
 ## Contributing
