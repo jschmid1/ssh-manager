@@ -14,12 +14,14 @@ module SSH
       def connect_to(id)
         ip = SSH::Manager::Database.new.get_connection_data[id.to_i-1][0]
         user = SSH::Manager::Database.new.get_connection_data[id.to_i-1][1]
-        # different terminals different behaviour .. i.e. xterm -C 'ssh...'
-        # TODO: add function for different terms
-
-        %x(#{CONFIG['terminal']} --command="ssh #{user}@#{ip}")
-
-
+        if CONFIG['terminal'] == "xfce4-terminal" || CONFIG['terminal'] == "gnome-terminal"
+          %x(#{CONFIG['terminal']} --command="ssh #{user}@#{ip}")
+        elsif CONFIG['terminal'] == "xterm" || CONFIG['terminal'] == "urxvt"
+          %x(#{CONFIG['terminal']} -e "ssh #{user}@#{ip}")
+        else
+          puts "We dont support #{CONFIG['terminal']} right now"
+          puts "Check Github for further development or contributing"
+        end
       end
 
       def add_connection(ip)
