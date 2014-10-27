@@ -16,7 +16,10 @@ module SSH
         user = SSH::Manager::Database.new.get_connection_data[id.to_i-1][1]
         # different terminals different behaviour .. i.e. xterm -C 'ssh...'
         # TODO: add function for different terms
+
         %x(#{CONFIG['terminal']} --command="ssh #{user}@#{ip}")
+
+
       end
 
       def add_connection(ip)

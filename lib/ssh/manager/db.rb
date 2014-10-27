@@ -5,8 +5,8 @@ module SSH
   module Manager
     class Database
 
+      FileUtils.cp ("#{File.dirname(__FILE__)}/../../../config/sshm.db"), ("#{File.join(Dir.home)}" + '/.config/sshm/') unless File.exists?(("#{File.join(Dir.home)}" + '/.config/sshm/sshm.db'))
       FileUtils.mkdir_p("#{File.join(ENV['HOME'])}/.config/sshm/") unless Dir.exists?("#{ENV['HOME']}/.config/sshm")
-      FileUtils.cp ("#{File.dirname(__FILE__)}/../../../sshm.db"), ("#{File.join(Dir.home)}" + '/.config/sshm/') unless File.exists?(("#{File.join(Dir.home)}" + '/.config/sshm/sshm.db'))
 
       @path = "#{File.join(ENV['HOME'])}/.config/sshm"
       DATABASE = Sequel.connect("sqlite://#{@path}/sshm.db")

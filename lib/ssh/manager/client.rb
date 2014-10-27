@@ -36,7 +36,8 @@ module SSH
           puts 'Searching ..'
           cli.new(@options).search_for(@options[:search])
         else
-          puts @optparse
+          cli.new(@argv.first).connect_to(@argv.first) if @argv != []
+          puts @optparse if @argv ==[]
           exit
         end
       end
@@ -57,7 +58,7 @@ module SSH
             @options[:delete] = opt
           end
           @options[:update] = false
-          opts.on( '-u', '--delete id', 'update connection <id>' ) do |opt|
+          opts.on( '-u', '--update id', 'update connection <id>' ) do |opt|
             @options[:update] = opt
           end
           @options[:search] = false
