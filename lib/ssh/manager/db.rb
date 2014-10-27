@@ -18,12 +18,11 @@ module SSH
       end
 
       def get_connection_data
-        @connections.map([:ip, :user, :hostname, :port, :note])
+        @connections.map([:ip, :user, :hostname, :port, :note, :group])
       end
 
-      def add_new_connection(ip, user='root', hostname='', port=22, note='')
-        # default params are currently useless FIXME
-        @connections.insert(:ip => ip, :user => user, :hostname => hostname, :port => port, :note => note)
+      def add_new_connection(ip, user='root', hostname='', port=22, note='', created_at, option, count, group, last_time)
+        @connections.insert(:ip => ip, :user => user, :hostname => hostname, :port => port, :note => note, :created_at => created_at, :options => option, :group => group, :count => count, :last_time => last_time)
       end
 
       def delete_connection(ip)
@@ -37,8 +36,9 @@ module SSH
 
       def search_for(term)
         # check online: search for 'contains' not for complete matching
-        return  @connections.where(:ip => term),  @connections.where(:user => term), @connections.where(:hostname => term), @connections.where(:port => term), @connections.where(:note => term)
+        return  @connections.where(:ip => term),  @connections.where(:user => term), @connections.where(:hostname => term), @connections.where(:port => term), @connections.where(:note => term), @connections.where(:group => term), @connections.where(:options => term)
       end
+
 
     end
   end

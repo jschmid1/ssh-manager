@@ -32,6 +32,9 @@ module SSH
         elsif @options[:update]
           puts 'Updating ..'
           cli.new(@options).update(@options[:update])
+        elsif @options[:multi]
+          puts 'Connecting to multiple ips'
+          cli.new(@options).multiple_connection(@options[:multi])
         elsif @options[:search]
           puts 'Searching ..'
           cli.new(@options).search_for(@options[:search])
@@ -64,6 +67,10 @@ module SSH
           @options[:search] = false
           opts.on( '-s', '--search string', 'search connection for given criteria' ) do |opt|
             @options[:search] = opt
+          end
+          @options[:multi] = false
+          opts.on( '-m', '--multi string', 'connect to multiple ips with given criteria' ) do |opt|
+            @options[:multi] = opt
           end
           @options[:list] = false
           opts.on( '-l', '--list', 'list all connections' ) do
