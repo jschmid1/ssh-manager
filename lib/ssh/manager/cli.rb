@@ -45,7 +45,6 @@ module SSH
 
       def list_all
         cnt = 0
-        # TODO: add indentation functionality with stringlenght etc..
         connections = Hash[SSH::Manager::Database.new.get_connection_data.collect { |x| [cnt+=1, x]}]
         puts "ID IP                  USERNAME            HOSTNAME            PORT                NOTES"
         connections.each do |x|
