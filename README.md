@@ -44,6 +44,7 @@ Usage: sshm [options] ...
 
 
 Listing ..
+
     ID IP                  USERNAME            HOSTNAME            PORT                NOTES
 
     1: 10.120.66.8         user                hostname            22                  mylap
