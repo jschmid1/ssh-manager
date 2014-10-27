@@ -21,14 +21,23 @@ Or install it yourself as:
 
 
 Usage: sshm [options] ...
+
     -a, --add ip                     Add ip to your Connection list
+
     -c, --connect id                 connect to <id>
+
     -d, --delete id                  delete connection <id>
+
     -u, --update id                  update connection <id>
+
     -s, --search string              search connection for given criteria
+
     -l, --list                       list all connections
+
     -h, --help                       Display this screen
+
     -v, --version                    Print programs version
+
 
 
 `sshm -l`
