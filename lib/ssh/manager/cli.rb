@@ -19,6 +19,7 @@ module SSH
           else
             command = '--command='
           end
+          #TODO: add title --title='connection name to identify '
           %x(#{CONFIG['terminal']} #{command}"ssh #{user}@#{ip}")
         elsif CONFIG['terminal'] == "xterm" || CONFIG['terminal'] == "urxvt"
           %x(#{CONFIG['terminal']} -e "ssh #{user}@#{ip}")

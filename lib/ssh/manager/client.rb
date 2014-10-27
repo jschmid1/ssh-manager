@@ -38,6 +38,9 @@ module SSH
         elsif @options[:search]
           puts 'Searching ..'
           cli.new(@options).search_for(@options[:search])
+        # elsif @options[:settings]
+        #   puts 'Settings'
+        #   cli.new(@options).settings(@options[:settings])
         else
           cli.new(@argv.first).connect_to(@argv.first) if @argv != []
           puts @optparse if @argv ==[]
