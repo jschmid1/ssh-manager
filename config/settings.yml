@@ -1,2 +1,3 @@
 terminal : "xfce4-terminal"
 deletion_interval : "never"
+tabbed: 'true'
