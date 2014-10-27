@@ -42,12 +42,19 @@ Usage: sshm [options] ...
 
 `sshm -l`
 
-1. 192.168.0.1 | your first connection
-2. 10.120.0.1 |  some
-3. 192.168.1.1 | more
-4. 10.10.120.0 | connections
-5. 188.42.69.88 | you added
-connect to: [1-5]
+
+Listing ..
+    ID IP                  USERNAME            HOSTNAME            PORT                NOTES
+
+    1: 10.120.66.8         user                hostname            22                  mylap
+
+    2: 192.168.0.14        user                hostname            22                  phone
+
+    3: 10.120.4.63         user                hsotname            22                  worklap
+
+    4: 192.168.0.193       user                hostname            22                  rasp home
+
+
 
 
 `sshm -u [1-5]`
