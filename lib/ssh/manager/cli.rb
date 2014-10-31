@@ -20,6 +20,8 @@ module SSH
             command = '--command='
           end
           #TODO: add title --title='connection name to identify '
+          #TODO: bug when no terminal is open => wants to open 2 terms
+          #TODO: dnslookup
           %x(#{CONFIG['terminal']} #{command}"ssh #{user}@#{ip}")
         elsif CONFIG['terminal'] == "xterm" || CONFIG['terminal'] == "urxvt"
           %x(#{CONFIG['terminal']} -e "ssh #{user}@#{ip}")

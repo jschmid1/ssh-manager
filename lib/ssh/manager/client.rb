@@ -2,6 +2,7 @@
 require 'optparse'
 require_relative 'db'
 require_relative 'client'
+require_relative 'version'
 
 module SSH
   module Manager
