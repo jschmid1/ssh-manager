@@ -17,7 +17,7 @@ module SSH
           if CONFIG['tabbed'] == 'true'
             command = '--tab --command='
           else
-            command = '--title=ssh-connection-manager--command='
+            command = "--title=#{ip} --command="
           end
           #TODO: add title --title='connection name to identify '
           #TODO: bug when no terminal is open => wants to open 2 terms
