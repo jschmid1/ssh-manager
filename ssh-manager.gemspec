@@ -6,12 +6,12 @@ require 'ssh/manager/version'
 Gem::Specification.new do |spec|
   spec.name          = "ssh-manager"
   spec.version       = SSH::Manager::VERSION
-  spec.authors       = ["Joshua Schmid, Juraj Hura"]
-  spec.email         = ["jschmid@suse.com, jhura@suse.cz"]
-  spec.description   = %q{ssh connections easy}
-  spec.summary       = %q{manage and connect}
+  spec.authors       = ["Joshua Schmid"]
+  spec.email         = ["jschmid@suse.com"]
+  spec.description   = %q{Manage ssh connections}
+  spec.summary       = %q{manage and connect ssh}
   spec.homepage      = "https://rubygems.org/profiles/jschmid"
-  spec.license       = "GPL"
+  spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
@@ -21,6 +21,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_runtime_dependency 'sequel', '=4.13.0'
   spec.add_runtime_dependency 'sqlite3', '=1.3.9'
-  #spec.add_runtime_dependency 'ruby-devel', '=1.3.9'
   spec.add_development_dependency "rake"
 end
