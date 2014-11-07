@@ -39,6 +39,12 @@ module SSH
         #TODO: if db[secure_login] = false => http://linuxcommando.blogspot.de/2008/10/how-to-disable-ssh-host-key-checking.html
       end
 
+      def transfer_key(id)
+        @ip = SSH::Manager::Database.new.get_connection_data[id.to_i-1][0]
+        @user = SSH::Manager::Database.new.get_connection_data[id.to_i-1][1]
+        %x(ssh-copy-id #{@user}@#{@ip})
+      end
+
       def add_connection(ip)
         puts 'Username: '
         user = $stdin.gets.chomp

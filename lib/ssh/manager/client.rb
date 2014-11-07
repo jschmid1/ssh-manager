@@ -36,6 +36,9 @@ module SSH
         elsif @options[:multi]
           puts 'Connecting to multiple ips'
           cli.new(@options).multiple_connection(@options[:multi])
+        elsif @options[:transfer_key]
+          puts 'Transfering key'
+          cli.new(@options).transfer_key(@options[:transfer_key])
         elsif @options[:search]
           puts 'Searching ..'
           cli.new(@options).search_for(@options[:search])
@@ -55,6 +58,10 @@ module SSH
           @options[:add] = false
           opts.on( '-a', '--add ip', 'Add ip to your Connection list' ) do |opt|
             @options[:add] = opt
+          end
+          @options[:transfer_key] = false
+          opts.on( '-t', '--transferkey id', 'transfer key to <id>' ) do |opt|
+            @options[:transfer_key] = opt
           end
           @options[:connect] = false
           opts.on( '-c', '--connect id', 'connect to <id>' ) do |opt|
