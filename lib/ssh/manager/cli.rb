@@ -3,10 +3,13 @@ require 'yaml'
 FileUtils.cp ("#{File.dirname(__FILE__)}/../../../config/settings.yml"), ("#{File.join(Dir.home)}" + '/.config/sshm/') unless File.exists?(("#{File.join(Dir.home)}" + '/.config/sshm/settings.yml'))
 CONFIG = YAML.load_file("#{File.join(ENV['HOME'])}/.config/sshm/settings.yml")
 require 'debugger'
+require_relative 'version'
 
 module SSH
   module Manager
     class Cli
+
+      DATABASE = SSH::Manager::Database.new
 
       def initialize(opts = {})
         @options = opts
@@ -15,9 +18,9 @@ module SSH
       def check_term(ip, user)
         if CONFIG['terminal'] == "xfce4-terminal" || CONFIG['terminal'] == "gnome-terminal"
           if CONFIG['tabbed'] == 'true'
-            command = '--tab --command='
+            command = "--title=#{user}@#{ip} --tab --command="
           else
-            command = "--title=#{ip} --command="
+            command = "--title=#{user}@#{ip} --command="
           end
           #TODO: add title --title='connection name to identify '
           #TODO: bug when no terminal is open => wants to open 2 terms
@@ -32,16 +35,27 @@ module SSH
       end
 
       def connect_to(id)
-        @ip = SSH::Manager::Database.new.get_connection_data[id.to_i-1][0]
-        @user = SSH::Manager::Database.new.get_connection_data[id.to_i-1][1]
+        @ip = DATABASE.get_connection_data[id.to_i-1][0]
+        @user = DATABASE.get_connection_data[id.to_i-1][1]
         check_term(@ip, @user)
         #TODO: check for options
         #TODO: if db[secure_login] = false => http://linuxcommando.blogspot.de/2008/10/how-to-disable-ssh-host-key-checking.html
       end
 
+      def update_available
+        #Thread.new {
+        new_version =%x(gem search ssh-manager).split(' ')[1]
+        old_version = SSH::Manager::VERSION
+        if new_version<old_version
+          puts 'There is a update available -> sudo gem update ssh-manager'
+        end
+        #}
+      end
+
+
       def transfer_key(id)
-        @ip = SSH::Manager::Database.new.get_connection_data[id.to_i-1][0]
-        @user = SSH::Manager::Database.new.get_connection_data[id.to_i-1][1]
+        @ip = DATABASE.get_connection_data[id.to_i-1][0]
+        @user = DATABASE.get_connection_data[id.to_i-1][1]
         %x(ssh-copy-id #{@user}@#{@ip})
       end
 
@@ -64,22 +78,22 @@ module SSH
         count = 0
         created_at = Time.now.to_s
         last_time = Time.now.to_s
-        SSH::Manager::Database.new.add_new_connection(ip, user, hostname, port, note, created_at, options, count, group, last_time)
+        DATABASE.add_new_connection(ip, user, hostname, port, note, created_at, options, count, group, last_time)
       end
 
       def delete(id)
         id = id.to_i - 1
-        SSH::Manager::Database.new.delete_connection(SSH::Manager::Database.new.get_connection_data[id][0])
+        DATABASE.delete_connection(DATABASE.get_connection_data[id][0])
       end
 
       def list_all
         cnt = 0
-        connections = Hash[SSH::Manager::Database.new.get_connection_data.collect { |x| [cnt+=1, x]}]
-        puts 'ID IP                  USERNAME            HOSTNAME            PORT                NOTES               GROUP'
+        connections = Hash[DATABASE.get_connection_data.collect { |x| [cnt+=1, x]}]
+        puts 'ID IP             USERNAME       NOTES          GROUP'
         connections.each do |x|
           print "#{x[0]}: "
           x[1].each do |a|
-            printf '%-20s', a
+            printf '%-15s', a
           end
           puts "\n"
         end
@@ -89,22 +103,22 @@ module SSH
         puts 'Entries wont change of left out blank.'
         puts 'Username: '
         user =$stdin.gets.chomp
-        user = SSH::Manager::Database.new.get_connection_data[id.to_i][1] if user == ''
+        user = DATABASE.get_connection_data[id.to_i][1] if user == ''
         puts 'Hostname: '
         hostname = $stdin.gets.chomp
-        hostname = SSH::Manager::Database.new.get_connection_data[id.to_i][2] if hostname == ''
+        hostname = DATABASE.get_connection_data[id.to_i][2] if hostname == ''
         puts 'port: '
         port = $stdin.gets.chomp
-        port = SSH::Manager::Database.new.get_connection_data[id.to_i][3] if port == ''
+        port = DATABASE.get_connection_data[id.to_i][3] if port == ''
         puts 'Notes: '
         note = $stdin.gets.chomp
-        note = SSH::Manager::Database.new.get_connection_data[id.to_i][4] if note == ''
-        SSH::Manager::Database.new.update_connection(SSH::Manager::Database.new.get_connection_data[id.to_i][0], user, hostname, port, note)
+        note = DATABASE.get_connection_data[id.to_i][4] if note == ''
+        DATABASE.update_connection(DATABASE.get_connection_data[id.to_i][0], user, hostname, port, note)
       end
 
       def search_for(term)
         puts 'IP                  USERNAME            HOSTNAME            PORT                NOTES               GROUP'
-        SSH::Manager::Database.new.search_for(term).each do |x|
+        DATABASE.search_for(term).each do |x|
           x.all.each do |cons|
             cons.values.each do |each_con|
               printf '%-20s', each_con
@@ -116,7 +130,7 @@ module SSH
       end
 
       def multiple_connection(term)
-        SSH::Manager::Database.new.search_for(term).each do |x|
+        DATABASE.search_for(term).each do |x|
           x.all.each do |dataset|
             check_term(dataset[:ip], dataset[:user])
             #TODO: Add terminalposition
