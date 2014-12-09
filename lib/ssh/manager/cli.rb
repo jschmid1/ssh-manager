@@ -48,7 +48,6 @@ module SSH
         if new_version<old_version
           puts 'There is a update available -> sudo gem update ssh-manager'
         end
-        #}
       end
 
 
@@ -56,6 +55,14 @@ module SSH
         @ip = DATABASE.get_connection_data[id.to_i-1][0]
         @user = DATABASE.get_connection_data[id.to_i-1][1]
         %x(ssh-copy-id #{@user}@#{@ip})
+      end
+
+      def transfer_file(filename, id='', dest_path="/home/#{user}/")
+        #TODO: add -r
+        # byebug
+        @ip = DATABASE.get_connection_data[id.to_i-1][0]
+        @user = DATABASE.get_connection_data[id.to_i-1][1]
+        %x(scp #{filename} #{@user}@#{@ip}:#{dest_path})
       end
 
       def add_connection(ip)

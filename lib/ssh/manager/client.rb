@@ -3,6 +3,7 @@ require 'optparse'
 require_relative 'db'
 require_relative 'client'
 require_relative 'version'
+require 'byebug'
 
 module SSH
   module Manager
@@ -24,6 +25,9 @@ module SSH
         elsif @options[:connect]
           puts 'Connecting ..'
           cli.new(@options).connect_to(@options[:connect])
+        elsif @options[:transfer_file]
+          puts 'Transfering file..'
+          cli.new(@options).transfer_file(@options[:transfer_file], @argv[2], @argv[3])
         elsif @options[:delete]
           puts 'Deleting ..'
           cli.new(@options).delete(@options[:delete])
@@ -34,10 +38,10 @@ module SSH
           puts 'Updating ..'
           cli.new(@options).update(@options[:update])
         elsif @options[:multi]
-          puts 'Connecting to multiple ips'
+          puts 'Connecting to multiple ips..'
           cli.new(@options).multiple_connection(@options[:multi])
         elsif @options[:transfer_key]
-          puts 'Transfering key'
+          puts 'Transfering key..'
           cli.new(@options).transfer_key(@options[:transfer_key])
         elsif @options[:search]
           puts 'Searching ..'
@@ -62,6 +66,10 @@ module SSH
           @options[:transfer_key] = false
           opts.on( '-t', '--transferkey id', 'transfer key to <id>' ) do |opt|
             @options[:transfer_key] = opt
+          end
+          @options[:transfer_file] = false
+          opts.on( '-r', '--transferfile filename', 'file connection_ID dest_path' ) do |opt|
+            @options[:transfer_file] = opt
           end
           @options[:connect] = false
           opts.on( '-c', '--connect id', 'connect to <id>' ) do |opt|
