@@ -50,7 +50,6 @@ module SSH
         end
       end
 
-
       def transfer_key(id)
         @ip = DATABASE.get_connection_data[id.to_i-1][0]
         @user = DATABASE.get_connection_data[id.to_i-1][1]
@@ -58,11 +57,10 @@ module SSH
       end
 
       def transfer_file(filename, id='', dest_path="/home/#{user}/")
-        #TODO: add -r
-        # byebug
         @ip = DATABASE.get_connection_data[id.to_i-1][0]
         @user = DATABASE.get_connection_data[id.to_i-1][1]
-        %x(scp #{filename} #{@user}@#{@ip}:#{dest_path})
+        %x(scp #{filename} #{@user}@#{@ip}:#{dest_path}) if File.file?(filename)
+        %x(scp -r #{filename} #{@user}@#{@ip}:#{dest_path}) if File.directory?(filename)
       end
 
       def add_connection(ip)

@@ -68,7 +68,7 @@ module SSH
             @options[:transfer_key] = opt
           end
           @options[:transfer_file] = false
-          opts.on( '-r', '--transferfile filename', 'file connection_ID dest_path' ) do |opt|
+          opts.on( '-r', '--transferfile filename', 'file or dir / connection_ID / dest_path(default is home/user)' ) do |opt|
             @options[:transfer_file] = opt
           end
           @options[:connect] = false
