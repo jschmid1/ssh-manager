@@ -18,7 +18,7 @@ module SSH
       end
 
       def get_connection_data
-        @connections.map([:ip, :user, :note, :group])
+        @connections.map([:ip, :user, :note, :group, :connect_via])
       end
 
       def add_new_connection(ip, user='root', hostname='', port=22, note='', created_at, option, count, group, last_time)

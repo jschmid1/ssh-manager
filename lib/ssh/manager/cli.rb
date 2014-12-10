@@ -46,9 +46,9 @@ module SSH
         old_version = SSH::Manager::VERSION
         if new_version<old_version
           puts "There is a update available #{new_version} was released. -> sudo gem update ssh-manager"
-        end
         else
         puts "Version: #{old_version} is up to date."
+        end
       end
 
       def transfer_key(id)
@@ -80,6 +80,11 @@ module SSH
         options = '' if options == ''
         puts 'Group: '
         group = $stdin.gets.chomp
+        # puts 'Connect via(ip): '
+        # connect_via_ip = $stdin.gets.chomp
+        # puts 'With Username: '
+        # connect_via_user = $stdin.gets.chomp
+        # connect_via= "#{connect_via_user}@#{connect_via_ip}"
         count = 0
         created_at = Time.now.to_s
         last_time = Time.now.to_s
