@@ -34,6 +34,9 @@ module SSH
         elsif @options[:list]
           puts 'Listing ..'
           cli.new(@options).list_all
+        elsif @options[:upgrade]
+          puts 'Checking for new updates ..'
+          cli.new(@options).update_available
         elsif @options[:update]
           puts 'Updating ..'
           cli.new(@options).update(@options[:update])
@@ -68,7 +71,7 @@ module SSH
             @options[:transfer_key] = opt
           end
           @options[:transfer_file] = false
-          opts.on( '-r', '--transferfile filename', 'file or dir / connection_ID / dest_path(default is home/user)' ) do |opt|
+          opts.on( '-r', '--transferfile filename', 'file or dir / connection_ID / dest_path(default is /home/user/)' ) do |opt|
             @options[:transfer_file] = opt
           end
           @options[:connect] = false
@@ -94,6 +97,10 @@ module SSH
           @options[:list] = false
           opts.on( '-l', '--list', 'list all connections' ) do
             @options[:list] = true
+          end
+          @options[:upgrade] = false
+          opts.on( '-g', '--upgrade', 'checks for upgrade' ) do
+            @options[:upgrade] = true
           end
           opts.on( '-h', '--help', 'Display this screen' ) do
             puts opts

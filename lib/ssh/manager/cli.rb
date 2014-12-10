@@ -42,12 +42,13 @@ module SSH
       end
 
       def update_available
-        #Thread.new {
-        new_version =%x(gem search ssh-manager).split(' ')[1]
+        new_version =%x(gem search ssh-manager).split(' ')[1].gsub /\((.*)\)/, '\1'
         old_version = SSH::Manager::VERSION
         if new_version<old_version
-          puts 'There is a update available -> sudo gem update ssh-manager'
+          puts "There is a update available #{new_version} was released. -> sudo gem update ssh-manager"
         end
+        else
+        puts "Version: #{old_version} is up to date."
       end
 
       def transfer_key(id)
