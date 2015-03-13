@@ -3,7 +3,6 @@ require 'optparse'
 require_relative 'db'
 require_relative 'client'
 require_relative 'version'
-require 'byebug'
 
 module SSH
   module Manager

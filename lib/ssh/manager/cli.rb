@@ -34,9 +34,17 @@ module SSH
       end
 
       def connect_to(id)
-        @ip = DATABASE.get_connection_data[id.to_i-1][0]
-        @user = DATABASE.get_connection_data[id.to_i-1][1]
-        check_term(@ip, @user)
+        via = DATABASE.get_connection_data[id.to_i-1][-1] =~ /@/
+        if via.integer? == false
+          @ip = DATABASE.get_connection_data[id.to_i-1][0]
+          @user = DATABASE.get_connection_data[id.to_i-1][1]
+          check_term(@ip, @user)
+        else
+          @ip = DATABASE.get_connection_data[id.to_i-1][0]
+          @user = DATABASE.get_connection_data[id.to_i-1][1]
+          via = DATABASE.get_connection_data[id.to_i-1][-1]
+          %x(gnome-terminal --command="ssh -A -t #{via} ssh -A -t #{@user}@#{@ip}") 
+        end
         #TODO: check for options
         #TODO: if db[secure_login] = false => http://linuxcommando.blogspot.de/2008/10/how-to-disable-ssh-host-key-checking.html
       end
@@ -80,15 +88,16 @@ module SSH
         options = '' if options == ''
         puts 'Group: '
         group = $stdin.gets.chomp
-        # puts 'Connect via(ip): '
-        # connect_via_ip = $stdin.gets.chomp
-        # puts 'With Username: '
-        # connect_via_user = $stdin.gets.chomp
-        # connect_via= "#{connect_via_user}@#{connect_via_ip}"
+        puts 'Connect via(ip): '
+        connect_via_ip = $stdin.gets.chomp
+        puts 'With Username: '
+        connect_via_user = $stdin.gets.chomp
+        connect_via= "#{connect_via_user}@#{connect_via_ip}"
+        # ssh -A -t jxs@10.160.64.184 ssh -A -t tux@10.160.65.2
         count = 0
         created_at = Time.now.to_s
         last_time = Time.now.to_s
-        DATABASE.add_new_connection(ip, user, hostname, port, note, created_at, options, count, group, last_time)
+        DATABASE.add_new_connection(ip, user, hostname, port, note, connect_via, created_at, options, count, group, last_time)
       end
 
       def delete(id)
