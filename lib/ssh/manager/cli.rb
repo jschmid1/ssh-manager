@@ -35,7 +35,7 @@ module SSH
 
       def connect_to(id)
         via = DATABASE.get_connection_data[id.to_i-1][-1] =~ /@/
-        if via.integer? == false
+        if via.nil?
           @ip = DATABASE.get_connection_data[id.to_i-1][0]
           @user = DATABASE.get_connection_data[id.to_i-1][1]
           check_term(@ip, @user)
@@ -92,8 +92,8 @@ module SSH
         connect_via_ip = $stdin.gets.chomp
         puts 'With Username: '
         connect_via_user = $stdin.gets.chomp
-        connect_via= "#{connect_via_user}@#{connect_via_ip}"
-        # ssh -A -t jxs@10.160.64.184 ssh -A -t tux@10.160.65.2
+        connect_via = ""
+        connect_via= "#{connect_via_user}@#{connect_via_ip}" unless connect_via_user.empty?
         count = 0
         created_at = Time.now.to_s
         last_time = Time.now.to_s
