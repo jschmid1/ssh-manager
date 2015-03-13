@@ -14,7 +14,7 @@ module SSH
         @options = opts
       end
 
-      def check_term(ip, user)
+      def check_term(ip, user, via)
         if CONFIG['terminal'] == "xfce4-terminal" || CONFIG['terminal'] == "gnome-terminal"
           if CONFIG['tabbed'] == 'true'
             command = "--title=#{user}@#{ip} --tab --command="
@@ -24,7 +24,11 @@ module SSH
           #TODO: add title --title='connection name to identify '
           #TODO: bug when no terminal is open => wants to open 2 terms
           #TODO: dnslookup
-          %x(#{CONFIG['terminal']} #{command}"ssh #{user}@#{ip}")
+          if via.nil? or via.empty?
+            %x(#{CONFIG['terminal']} #{command}"ssh #{user}@#{ip}")
+          else
+            %x(#{CONFIG['terminal']} #{command}"ssh -A -t #{via} ssh -A -t #{user}@#{ip}")
+          end
         elsif CONFIG['terminal'] == "xterm" || CONFIG['terminal'] == "urxvt"
           %x(#{CONFIG['terminal']} -e "ssh #{user}@#{ip}")
         else
@@ -38,12 +42,12 @@ module SSH
         if via.nil?
           @ip = DATABASE.get_connection_data[id.to_i-1][0]
           @user = DATABASE.get_connection_data[id.to_i-1][1]
-          check_term(@ip, @user)
+          check_term(@ip, @user, via)
         else
           @ip = DATABASE.get_connection_data[id.to_i-1][0]
           @user = DATABASE.get_connection_data[id.to_i-1][1]
           via = DATABASE.get_connection_data[id.to_i-1][-1]
-          %x(gnome-terminal --command="ssh -A -t #{via} ssh -A -t #{@user}@#{@ip}") 
+          check_term(@ip, @user, via)
         end
         #TODO: check for options
         #TODO: if db[secure_login] = false => http://linuxcommando.blogspot.de/2008/10/how-to-disable-ssh-host-key-checking.html
@@ -151,7 +155,7 @@ module SSH
       def multiple_connection(term)
         DATABASE.search_for(term).each do |x|
           x.all.each do |dataset|
-            check_term(dataset[:ip], dataset[:user])
+            check_term(dataset[:ip], dataset[:user], dataset[:connect_via])
             #TODO: Add terminalposition
           end
         end
