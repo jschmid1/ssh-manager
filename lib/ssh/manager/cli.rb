@@ -15,7 +15,9 @@ module SSH
       end
 
       def check_term(ip, user, via)
-        if CONFIG['terminal'] == "xfce4-terminal" || CONFIG['terminal'] == "gnome-terminal"
+        if CONFIG['target'] == "self"
+          exec "ssh #{user}@#{ip}"
+        elsif CONFIG['terminal'] == "xfce4-terminal" || CONFIG['terminal'] == "gnome-terminal"
           if CONFIG['tabbed'] == 'true'
             command = "--title=#{user}@#{ip} --tab --command="
           else
