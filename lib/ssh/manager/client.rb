@@ -18,18 +18,19 @@ module SSH
 
       def execute!
         cli = SSH::Manager::Cli
+        # TODO id.to_i is not good enough. we want to support hostnames too
         if @options[:add]
           puts 'Adding ..'
-          cli.new(@options).add_connection(@options[:add])
+          cli.new(@options).add_connection
         elsif @options[:connect]
           puts 'Connecting ..'
-          cli.new(@options).connect_to(@options[:connect])
+          cli.new(@options).connect_to(@options[:connect].to_i)
         elsif @options[:transfer_file]
           puts 'Transfering file..'
-          cli.new(@options).transfer_file(@options[:transfer_file], @argv[2], @argv[3])
+          cli.new(@options).transfer_file(@options[:transfer_file].to_i, @argv[2], @argv[3])
         elsif @options[:delete]
           puts 'Deleting ..'
-          cli.new(@options).delete(@options[:delete])
+          cli.new(@options).delete(@options[:delete].to_i)
         elsif @options[:list]
           puts 'Listing ..'
           cli.new(@options).list_all
@@ -38,13 +39,13 @@ module SSH
           cli.new(@options).update_available
         elsif @options[:update]
           puts 'Updating ..'
-          cli.new(@options).update(@options[:update])
+          cli.new(@options).update(@options[:update].to_i)
         elsif @options[:multi]
           puts 'Connecting to multiple ips..'
           cli.new(@options).multiple_connection(@options[:multi])
         elsif @options[:transfer_key]
           puts 'Transfering key..'
-          cli.new(@options).transfer_key(@options[:transfer_key])
+          cli.new(@options).transfer_key(@options[:transfer_key].to_i)
         elsif @options[:search]
           puts 'Searching ..'
           cli.new(@options).search_for(@options[:search])
@@ -62,8 +63,8 @@ module SSH
         @optparse = OptionParser.new do |opts|
           opts.banner = "Usage: sshm [options] ..."
           @options[:add] = false
-          opts.on( '-a', '--add ip', 'Add ip to your Connection list' ) do |opt|
-            @options[:add] = opt
+          opts.on( '-a', '--add', 'add a new connection' ) do
+            @options[:add] = true
           end
           @options[:transfer_key] = false
           opts.on( '-t', '--transferkey id', 'transfer key to <id>' ) do |opt|
@@ -101,11 +102,11 @@ module SSH
           opts.on( '-g', '--upgrade', 'checks for upgrade' ) do
             @options[:upgrade] = true
           end
-          opts.on( '-h', '--help', 'Display this screen' ) do
+          opts.on( '-h', '--help', 'display this screen' ) do
             puts opts
             exit
           end
-          opts.on( '-v', '--version', 'Print programs version' ) do
+          opts.on( '-v', '--version', 'print programs version' ) do
             puts SSH::Manager::VERSION
             exit
           end

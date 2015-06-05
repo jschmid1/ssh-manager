@@ -5,41 +5,65 @@ module SSH
   module Manager
     class Database
 
-      FileUtils.mkdir_p("#{File.join(ENV['HOME'])}/.config/sshm/") unless Dir.exists?("#{ENV['HOME']}/.config/sshm")
-      FileUtils.cp ("#{File.dirname(__FILE__)}/../../../config/sshm.db"), ("#{File.join(Dir.home)}" + '/.config/sshm/') unless File.exists?(("#{File.join(Dir.home)}" + '/.config/sshm/sshm.db'))
+      @config_dir = "#{ENV['HOME']}/.config/sshm"
+      FileUtils.mkdir_p(@config_dir) unless Dir.exists?(@config_dir)
 
-      @path = "#{File.join(ENV['HOME'])}/.config/sshm"
-      DATABASE = Sequel.connect("sqlite://#{@path}/sshm.db")
+      @database_file = "#{@config_dir}/sshm.sqlite3"
+      unless File.exists?(@database_file)
+        Sequel.sqlite(@database_file).run <<-NEW_DB
+CREATE TABLE connection (
+   "id"           INTEGER PRIMARY KEY AUTOINCREMENT,
+   "ip"           TEXT,
+   "user"         TEXT,
+   "hostname"     TEXT,
+   "port"         INTEGER,
+   "note"         TEXT,
+   "created_at"   TEXT,
+   "options"      TEXT,
+   "group"        TEXT,
+   "count"        INTEGER,
+   "last_time"    TEXT,
+   "secure_check" INTEGER,
+   "connect_via"  INTEGER NULL,
+   FOREIGN KEY("connect_via") REFERENCES connection("id")
+);
+
+INSERT INTO connection ("ip", "hostname") VALUES ("127.0.0.1", "localhost");
+NEW_DB
+        #TODO make group a n:m relation to extra table
+      end
+      DATABASE = Sequel.sqlite(@database_file)
 
       attr_accessor :connections
 
       def initialize
-        @connections= DATABASE.from(:connection)
+        @connections = DATABASE[:connection]
+      end
+
+      def get_connection_by_id(id)
+        @connections[:id => id].to_hash
       end
 
       def get_connection_data
-        @connections.map([:ip, :user, :note, :group, :connect_via])
+        @connections.all
       end
 
-      def add_new_connection(ip, user='root', hostname='', port=22, note='', connect_via='', created_at, option, count, group, last_time)
-        @connections.insert(:ip => ip, :user => user, :hostname => hostname, :port => port, :note => note, :connect_via => connect_via, :created_at => created_at, :options => option, :group => group, :count => count, :last_time => last_time)
+      def add_new_connection(connection)
+        @connections.insert(connection)
       end
 
-      def delete_connection(ip)
-        # add && :user => user to ensure deletion
-        @connections.where(:ip => ip).delete
+      def delete_connection(id)
+        @connections.where(:id => id).delete
       end
 
-      def update_connection(ip, user, hostname, port, note)
-        @connections.where(:ip => ip).update(:user => user, :hostname => hostname, :port => port, :note => note)
+      def update_connection(connection)
+        @connections.where(:id => connection[:id]).update(connection)
       end
 
       def search_for(term)
         # check online: search for 'contains' not for complete matching
         return  @connections.where(:ip => term),  @connections.where(:user => term), @connections.where(:hostname => term), @connections.where(:port => term), @connections.where(:note => term), @connections.where(:group => term), @connections.where(:options => term)
       end
-
-
     end
   end
 end
