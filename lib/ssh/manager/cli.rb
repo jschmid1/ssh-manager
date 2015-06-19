@@ -34,8 +34,9 @@ module SSH
           ip = connection[:ip]
           user = connection[:user]
           user = ENV['USER'] if user == ""
+          options = connection[:options]
           via = connection[:connect_via]
-          ssh_command = "ssh -A -t #{user}@#{ip} #{ssh_command}"
+          ssh_command = "ssh -A -t #{options} #{user}@#{ip} #{ssh_command}"
           i = via
           #TODO prevent endless via-loops
         end while via
@@ -58,7 +59,6 @@ module SSH
           puts "We dont support #{CONFIG['terminal']} right now"
           puts 'Check Github for further development or contributing'
         end
-        #TODO: check for options
         #TODO: if db[secure_login] = false => http://linuxcommando.blogspot.de/2008/10/how-to-disable-ssh-host-key-checking.html
       end
 
@@ -74,6 +74,7 @@ module SSH
 
       def transfer_key(id)
         #TODO connect_via
+        #TODO options
         connection = DATABASE.get_connection_by_id(id)
         user = connection[:user]
         user = ENV['USER'] if user == ""
@@ -82,6 +83,7 @@ module SSH
 
       def transfer_file(filename, id='', dest_path="/home/#{user}/")
         #TODO connect_via
+        #TODO options
         connection = DATABASE.get_connection_by_id(id)
         user = connection[:user]
         user = ENV['USER'] if user == ""
