@@ -21,9 +21,9 @@ module SSH
                          :options => "Options",
                          :group => "Group",
                          :connect_via => "Connect via (id)"}
-        @visible_fields = [:id, :ip, :port, :group]
+        @visible_fields = [:id, :ip, :port, :group, :note]
         @input_fields = [:ip, :hostname, :user, :port, :options, :note, :group, :connect_via]
-        @column_width = 20 #TODO make this dynamic or a yaml setting
+        @column_width = 15 #TODO make this dynamic or a yaml setting
       end
 
       def connect_to(id)
@@ -40,6 +40,9 @@ module SSH
           i = via
           #TODO prevent endless via-loops
         end while via
+        connection[:count] += 1
+        DATABASE.update_connection(connection)
+        # TODO increment counter
 
         if CONFIG['target'] == "self"
           exec ssh_command
