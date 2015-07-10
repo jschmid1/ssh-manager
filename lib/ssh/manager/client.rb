@@ -25,6 +25,9 @@ module SSH
         elsif @options[:connect]
           puts 'Connecting ..'
           cli.new(@options).connect_to(@options[:connect].to_i)
+        elsif @options[:info]
+          puts 'Printing info ..'
+          cli.new(@options).show_info(@options[:info].to_i)
         elsif @options[:transfer_file]
           puts 'Transfering file..'
           cli.new(@options).transfer_file(@options[:transfer_file].to_i, @argv[2], @argv[3])
@@ -77,6 +80,10 @@ module SSH
           @options[:connect] = false
           opts.on( '-c', '--connect id', 'connect to <id>' ) do |opt|
             @options[:connect] = opt
+          end
+          @options[:info] = false
+          opts.on( '-i', '--info id', 'info about to <id>' ) do |opt|
+            @options[:info] = opt
           end
           @options[:delete] = false
           opts.on( '-d', '--delete id', 'delete connection <id>' ) do |opt|

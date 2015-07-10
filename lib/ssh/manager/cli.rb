@@ -21,7 +21,7 @@ module SSH
                          :options => "Options",
                          :group => "Group",
                          :connect_via => "Connect via (id)"}
-        @visible_fields = [:id, :ip, :port, :group, :note]
+        @visible_fields = [:id, :ip, :group, :note]
         @input_fields = [:ip, :hostname, :user, :port, :options, :note, :group, :connect_via]
         @column_width = 15 #TODO make this dynamic or a yaml setting
       end
@@ -41,9 +41,8 @@ module SSH
           #TODO prevent endless via-loops
         end while via
         connection[:count] += 1
+        connection[:last_time] = Time.now
         DATABASE.update_connection(connection)
-        # TODO increment counter
-
         if CONFIG['target'] == "self"
           exec ssh_command
         elsif CONFIG['terminal'] == "xfce4-terminal" || CONFIG['terminal'] == "gnome-terminal"
@@ -71,7 +70,21 @@ module SSH
         if new_version<old_version
           puts "There is a update available #{new_version} was released. -> sudo gem update ssh-manager"
         else
-        puts "Version: #{old_version} is up to date."
+          puts "Version: #{old_version} is up to date."
+        end
+      end
+      def show_info(id)
+        connections = DATABASE.get_connection_by_id(id)
+        puts "\n"
+        @input_fields << :count
+        @input_fields << :last_time
+        @input_fields.each do |field|
+          if field == :connect_via
+            printf "%s: %s  -|-  %s ", field, connections[field], DATABASE.get_connection_by_id(connections[field])[:ip]
+          else
+            printf "%s: %s", field, connections[field]
+          end
+          puts "\n"
         end
       end
 
@@ -135,27 +148,24 @@ module SSH
       end
 
       def search_for(term)
-        puts 'IP                  USERNAME            HOSTNAME            PORT                NOTES               GROUP'
+        puts "All results for searchterm: #{term}"
+        @visible_fields.each { |f| printf "%-#{@column_width}s", @pretty_names[f] }
+        print "\n"
         DATABASE.search_for(term).each do |x|
           x.all.each do |cons|
-            cons.values.each do |each_con|
-              printf '%-20s', each_con
-            end
+            @visible_fields.each { |f| printf "%-#{@column_width}s", cons[f] }
             puts "\n"
           end
         end
-        puts "All results for searchterm: #{term}"
       end
 
       def multiple_connection(term)
         DATABASE.search_for(term).each do |x|
           x.all.each do |dataset|
-            check_term(dataset[:ip], dataset[:user], dataset[:connect_via])
-            #TODO: Add terminalposition
+            self.connect_to(dataset[:id])
           end
         end
       end
-
     end
   end
 end
