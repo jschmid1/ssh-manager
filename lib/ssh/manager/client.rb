@@ -19,15 +19,17 @@ module SSH
       def execute!
         cli = SSH::Manager::Cli
         # TODO id.to_i is not good enough. we want to support hostnames too
+        # Checking and casting in the methods itself could solve the problem
+        # futhermore this could reside in a separate method
         if @options[:add]
           puts 'Adding ..'
           cli.new(@options).add_connection
         elsif @options[:connect]
           puts 'Connecting ..'
-          cli.new(@options).connect_to(@options[:connect].to_i)
+          cli.new(@options).connect_to(@options[:connect])
         elsif @options[:info]
           puts 'Printing info ..'
-          cli.new(@options).show_info(@options[:info].to_i)
+          cli.new(@options).show_info(@options[:info])
         elsif @options[:transfer_file]
           puts 'Transfering file..'
           cli.new(@options).transfer_file(@options[:transfer_file].to_i, @argv[2], @argv[3])
@@ -36,16 +38,13 @@ module SSH
           cli.new(@options).ping(@options[:ping].to_i)
         elsif @options[:delete]
           puts 'Deleting ..'
-          cli.new(@options).delete(@options[:delete].to_i)
+          cli.new(@options).delete(@options[:delete])
         elsif @options[:list]
           puts 'Listing ..'
           cli.new(@options).list_all
         elsif @options[:upgrade]
           puts 'Checking for new updates ..'
           cli.new(@options).update_available
-        elsif @options[:arr]
-          puts 'Testing..'
-          cli.new(@options).test(@options[:arr])
         elsif @options[:update]
           puts 'Updating ..'
           cli.new(@options).update(@options[:update].to_i)
@@ -79,22 +78,16 @@ module SSH
           opts.on( '-t', '--transferkey id', 'transfer key to <id>' ) do |opt|
             @options[:transfer_key] = opt
           end
-          @options[:arr] =  false
-          opts.on("--arr x y z", Array, "Example 'list' of arguments") do |opt|
-            require "byebug"
-            byebug
-            @options[:arr] = opt 
-          end
           @options[:transfer_file] = false
           opts.on( '-r', '--transferfile filename', 'file or dir / connection_ID / dest_path(default is /home/user/)' ) do |opt|
             @options[:transfer_file] = opt
           end
           @options[:connect] = false
-          opts.on( '-c', '--connect id', 'connect to <id>' ) do |opt|
+          opts.on( '-c', '--connect x y z', Array, 'connect to <ids>' ) do |opt|
             @options[:connect] = opt
           end
           @options[:info] = false
-          opts.on( '-i', '--info id', 'info about to <id>' ) do |opt|
+          opts.on( '-i', '--info id1 id2 id3',Array, 'info about to <id>' ) do |opt|
             @options[:info] = opt
           end
           @options[:ping] = false
@@ -102,7 +95,7 @@ module SSH
             @options[:ping] = opt
           end
           @options[:delete] = false
-          opts.on( '-d', '--delete id', 'delete connection <id>' ) do |opt|
+          opts.on( '-d', '--delete id1 id2 id3',Array, 'delete connection <ids>' ) do |opt|
             @options[:delete] = opt
           end
           @options[:update] = false

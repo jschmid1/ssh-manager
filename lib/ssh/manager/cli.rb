@@ -27,39 +27,42 @@ module SSH
       end
 
       def connect_to(id)
-        ssh_command = ""
-        i = id
-        begin
-          connection = DATABASE.get_connection_by_id(i)
-          ip = connection[:ip]
-          user = connection[:user]
-          user = ENV['USER'] if user == ""
-          options = connection[:options]
-          via = connection[:connect_via]
-          ssh_command = "ssh -A -t #{options} #{user}@#{ip} #{ssh_command}"
-          i = via
-          #TODO prevent endless via-loops
-        end while via
-        connection[:count] += 1
-        connection[:last_time] = Time.now
-        DATABASE.update_connection(connection)
-        if CONFIG['target'] == "self"
-          exec ssh_command
-        elsif CONFIG['terminal'] == "xfce4-terminal" || CONFIG['terminal'] == "gnome-terminal"
-          if CONFIG['tabbed'] == 'true'
-            command = "--title=#{user}@#{ip} --tab --command="
+        id.each do |conn|
+          conn.to_i
+          ssh_command = ""
+          i = conn
+          begin
+            connection = DATABASE.get_connection_by_id(i)
+            ip = connection[:ip]
+            user = connection[:user]
+            user = ENV['USER'] if user == ""
+            options = connection[:options]
+            via = connection[:connect_via]
+            ssh_command = "ssh -A -t #{options} #{user}@#{ip} #{ssh_command}"
+            i = via
+            #TODO prevent endless via-loops
+          end while via
+          connection[:count] += 1
+          connection[:last_time] = Time.now
+          DATABASE.update_connection(connection)
+          if CONFIG['target'] == "self"
+            exec ssh_command
+          elsif CONFIG['terminal'] == "xfce4-terminal" || CONFIG['terminal'] == "gnome-terminal"
+            if CONFIG['tabbed'] == 'true'
+              command = "--title=#{user}@#{ip} --tab --command="
+            else
+              command = "--title=#{user}@#{ip} --command="
+            end
+            #TODO: add title --title='connection name to identify '
+            #TODO: bug when no terminal is open => wants to open 2 terms
+            #TODO: dnslookup
+            %x(#{CONFIG['terminal']} #{command}"#{ssh_command}")
+          elsif CONFIG['terminal'] == "xterm" || CONFIG['terminal'] == "urxvt"
+            %x(#{CONFIG['terminal']} -e "#{ssh_command}")
           else
-            command = "--title=#{user}@#{ip} --command="
+            puts "We dont support #{CONFIG['terminal']} right now"
+            puts 'Check Github for further development or contributing'
           end
-          #TODO: add title --title='connection name to identify '
-          #TODO: bug when no terminal is open => wants to open 2 terms
-          #TODO: dnslookup
-          %x(#{CONFIG['terminal']} #{command}"#{ssh_command}")
-        elsif CONFIG['terminal'] == "xterm" || CONFIG['terminal'] == "urxvt"
-          %x(#{CONFIG['terminal']} -e "#{ssh_command}")
-        else
-          puts "We dont support #{CONFIG['terminal']} right now"
-          puts 'Check Github for further development or contributing'
         end
         #TODO: if db[secure_login] = false => http://linuxcommando.blogspot.de/2008/10/how-to-disable-ssh-host-key-checking.html
       end
@@ -73,18 +76,22 @@ module SSH
           puts "Version: #{old_version} is up to date."
         end
       end
+
       def show_info(id)
-        connections = DATABASE.get_connection_by_id(id)
-        puts "\n"
         @input_fields << :count
         @input_fields << :last_time
-        @input_fields.each do |field|
-          if field == :connect_via
-            printf "%s: %s  -|-  %s ", field, connections[field], DATABASE.get_connection_by_id(connections[field])[:ip]
-          else
-            printf "%s: %s", field, connections[field]
-          end
+        id.each do |conn|
+          connections = DATABASE.get_connection_by_id(conn.to_i)
           puts "\n"
+          @input_fields.each do |field|
+            if field == :connect_via && connections[field] != nil
+              via_ip = DATABASE.get_connection_by_id(connections[field])[:ip]
+              printf "%s: %s  -|-  %s ", field, connections[field], via_ip
+            else
+              printf "%s: %s", field, connections[field]
+            end
+            puts "\n"
+          end
         end
       end
 
@@ -139,7 +146,10 @@ module SSH
       end
 
       def delete(id)
-        DATABASE.delete_connection(id)
+        id.each do |conn|
+          conn.to_i
+          DATABASE.delete_connection(conn)
+        end
       end
 
       def list_all
