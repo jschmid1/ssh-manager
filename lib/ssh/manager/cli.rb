@@ -97,6 +97,22 @@ module SSH
         %x(ssh-copy-id #{user}@#{connection[:ip]})
       end
 
+      def ping(id)
+        connection = DATABASE.get_connection_by_id(id)
+        if connection[:connect_via]
+          connect_via = DATABASE.get_connection_by_id(connection[:connect_via])
+          ssh = "ssh #{connect_via[:user]}@#{connect_via[:ip]}"
+          exec("#{ssh} ping #{connection[:ip]} -c 3")
+        else
+          exec("ping #{connection[:ip]} -c 3")
+        end
+      end
+
+      def test(type)
+        require 'byebug'
+        byebug
+      end
+
       def transfer_file(filename, id='', dest_path="/home/#{user}/")
         #TODO connect_via
         #TODO options

@@ -31,6 +31,9 @@ module SSH
         elsif @options[:transfer_file]
           puts 'Transfering file..'
           cli.new(@options).transfer_file(@options[:transfer_file].to_i, @argv[2], @argv[3])
+        elsif @options[:ping]
+          puts 'Pinging..'
+          cli.new(@options).ping(@options[:ping].to_i)
         elsif @options[:delete]
           puts 'Deleting ..'
           cli.new(@options).delete(@options[:delete].to_i)
@@ -40,6 +43,9 @@ module SSH
         elsif @options[:upgrade]
           puts 'Checking for new updates ..'
           cli.new(@options).update_available
+        elsif @options[:arr]
+          puts 'Testing..'
+          cli.new(@options).test(@options[:arr])
         elsif @options[:update]
           puts 'Updating ..'
           cli.new(@options).update(@options[:update].to_i)
@@ -73,6 +79,12 @@ module SSH
           opts.on( '-t', '--transferkey id', 'transfer key to <id>' ) do |opt|
             @options[:transfer_key] = opt
           end
+          @options[:arr] =  false
+          opts.on("--arr x y z", Array, "Example 'list' of arguments") do |opt|
+            require "byebug"
+            byebug
+            @options[:arr] = opt 
+          end
           @options[:transfer_file] = false
           opts.on( '-r', '--transferfile filename', 'file or dir / connection_ID / dest_path(default is /home/user/)' ) do |opt|
             @options[:transfer_file] = opt
@@ -84,6 +96,10 @@ module SSH
           @options[:info] = false
           opts.on( '-i', '--info id', 'info about to <id>' ) do |opt|
             @options[:info] = opt
+          end
+          @options[:ping] = false
+          opts.on( '-p', '--ping id', 'test connection of <id>' ) do |opt|
+            @options[:ping] = opt
           end
           @options[:delete] = false
           opts.on( '-d', '--delete id', 'delete connection <id>' ) do |opt|
