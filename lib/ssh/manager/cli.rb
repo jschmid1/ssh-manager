@@ -26,6 +26,14 @@ module SSH
         @column_width = 15 #TODO make this dynamic or a yaml setting
       end
 
+      def check_connection_type(connection)
+        if connection.class == String
+          "hostname"
+        else
+          "ip"
+        end
+      end
+
       def connect_to(id)
         id.each do |conn|
           conn.to_i
@@ -114,10 +122,7 @@ module SSH
           exec("ping #{connection[:ip]} -c 3")
         end
       end
-
-      def test(type)
-        require 'byebug'
-        byebug
+      def test(id)
       end
 
       def transfer_file(filename, id='', dest_path="/home/#{user}/")

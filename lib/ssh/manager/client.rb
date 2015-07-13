@@ -9,12 +9,15 @@ module SSH
     class Client
 
       attr_accessor :options
+      CODES = %w[iso-2022-jp shift_jis euc-jp utf8 binary]
+      CODE_ALIASES = { "jis" => "iso-2022-jp", "sjis" => "shift_jis" }
 
       def initialize(argv)
         @options = {}
         @argv = argv
         extract_options
       end
+
 
       def execute!
         cli = SSH::Manager::Cli
@@ -54,6 +57,9 @@ module SSH
         elsif @options[:transfer_key]
           puts 'Transfering key..'
           cli.new(@options).transfer_key(@options[:transfer_key].to_i)
+        elsif @options[:codeing]
+          puts 'coding key..'
+          cli.new(@options).test(@options[:coding].to_i)
         elsif @options[:search]
           puts 'Searching ..'
           cli.new(@options).search_for(@options[:search])
@@ -61,7 +67,11 @@ module SSH
         #   puts 'Settings'
         #   cli.new(@options).settings(@options[:settings])
         else
-          cli.new(@argv.first).connect_to(@argv.first) if @argv != []
+          if @argv.count == 1
+            cli.new(@options).connect_to(@argv.first.split(',')) if @argv != []
+          else
+            cli.new(@options).connect_to(@argv) if @argv != []
+          end
           puts @optparse if @argv ==[]
           exit
         end
@@ -81,6 +91,10 @@ module SSH
           @options[:transfer_file] = false
           opts.on( '-r', '--transferfile filename', 'file or dir / connection_ID / dest_path(default is /home/user/)' ) do |opt|
             @options[:transfer_file] = opt
+          end
+          code_list = (CODE_ALIASES.keys + CODES).join(',')
+          opts.on("--code CODE", CODES, CODE_ALIASES, "Select encoding"," (#{code_list})") do |encoding|
+          options.encoding = encoding
           end
           @options[:connect] = false
           opts.on( '-c', '--connect x y z', Array, 'connect to <ids>' ) do |opt|
