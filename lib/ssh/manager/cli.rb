@@ -122,6 +122,8 @@ module SSH
           exec("ping #{connection[:ip]} -c 3")
         end
       end
+
+
       def test(id)
       end
 
@@ -193,7 +195,7 @@ module SSH
       def multiple_connection(term)
         DATABASE.search_for(term).each do |x|
           x.all.each do |dataset|
-            self.connect_to(dataset[:id])
+            self.connect_to([dataset[:id]])
           end
         end
       end
