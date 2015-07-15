@@ -33,6 +33,9 @@ module SSH
         elsif @options[:info]
           puts 'Printing info ..'
           cli.new(@options).show_info(@options[:info])
+        elsif @options[:execute]
+          puts 'Executing command..'
+          cli.new(@options).execute_command(@options[:execute])
         elsif @options[:transfer_file]
           puts 'Transfering file..'
           cli.new(@options).transfer_file(@options[:transfer_file].to_i, @argv[2], @argv[3])
@@ -57,15 +60,15 @@ module SSH
         elsif @options[:transfer_key]
           puts 'Transfering key..'
           cli.new(@options).transfer_key(@options[:transfer_key].to_i)
-        elsif @options[:codeing]
+        elsif @options[:encoding]
           puts 'coding key..'
-          cli.new(@options).test(@options[:coding].to_i)
+          cli.new(@options).test(@options[:encoding].to_i)
+        elsif @options[:settings]
+          puts 'Settings'
+          cli.new(@options).settings
         elsif @options[:search]
           puts 'Searching ..'
           cli.new(@options).search_for(@options[:search])
-        # elsif @options[:settings]
-        #   puts 'Settings'
-        #   cli.new(@options).settings(@options[:settings])
         else
           if @argv.count == 1
             cli.new(@options).connect_to(@argv.first.split(',')) if @argv != []
@@ -78,6 +81,7 @@ module SSH
       end
 
       def extract_options
+        begin
         @optparse = OptionParser.new do |opts|
           opts.banner = "Usage: sshm [options] ..."
           @options[:add] = false
@@ -92,9 +96,10 @@ module SSH
           opts.on( '-r', '--transferfile filename', 'file or dir / connection_ID / dest_path(default is /home/user/)' ) do |opt|
             @options[:transfer_file] = opt
           end
+          @options[:encoding] = false
           code_list = (CODE_ALIASES.keys + CODES).join(',')
           opts.on("--code CODE", CODES, CODE_ALIASES, "Select encoding"," (#{code_list})") do |encoding|
-          options.encoding = encoding
+            @options[:encoding] = encoding
           end
           @options[:connect] = false
           opts.on( '-c', '--connect x y z', Array, 'connect to <ids>' ) do |opt|
@@ -103,6 +108,10 @@ module SSH
           @options[:info] = false
           opts.on( '-i', '--info id1 id2 id3',Array, 'info about to <id>' ) do |opt|
             @options[:info] = opt
+          end
+          @options[:execute] = false
+          opts.on( '-x', '--exec id1 id2 id3',Array, 'exec command on <id>' ) do |opt|
+            @options[:execute] = opt
           end
           @options[:ping] = false
           opts.on( '-p', '--ping id', 'test connection of <id>' ) do |opt|
@@ -121,7 +130,7 @@ module SSH
             @options[:search] = opt
           end
           @options[:multi] = false
-          opts.on( '-m', '--multi string', 'connect to multiple ips with given criteria' ) do |opt|
+          opts.on( '-m', '--multi searchterm', 'connect to multiple ips with given criteria' ) do |opt|
             @options[:multi] = opt
           end
           @options[:list] = false
@@ -131,6 +140,10 @@ module SSH
           @options[:upgrade] = false
           opts.on( '-g', '--upgrade', 'checks for upgrade' ) do
             @options[:upgrade] = true
+          end
+          @options[:settings] = false
+          opts.on( '--settings', 'update settings' ) do
+            @options[:settings] = true
           end
           opts.on( '-h', '--help', 'display this screen' ) do
             puts opts
@@ -142,6 +155,9 @@ module SSH
           end
         end
         @optparse.parse(@argv)
+        rescue => e
+          catch "That didnt work: #{e.to_s}"
+        end
       end
     end
   end

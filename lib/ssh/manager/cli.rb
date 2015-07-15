@@ -1,4 +1,6 @@
 require_relative 'db'
+require 'colorize'
+require 'readline'
 require 'yaml'
 FileUtils.cp ("#{File.dirname(__FILE__)}/../../../config/settings.yml"), ("#{File.join(Dir.home)}" + '/.config/sshm/') unless File.exists?(("#{File.join(Dir.home)}" + '/.config/sshm/settings.yml'))
 CONFIG = YAML.load_file("#{File.join(ENV['HOME'])}/.config/sshm/settings.yml")
@@ -123,8 +125,55 @@ module SSH
         end
       end
 
+      def execute_command(id)
+        # id.first should be the command
+        cmd = id.shift
+        id.each do |con|
+          connection = DATABASE.get_connection_by_id(con)
+          if connection[:connect_via]
+            connect_via = DATABASE.get_connection_by_id(connection[:connect_via])
+            ssh = "ssh #{connect_via[:user]}@#{connect_via[:ip]}"
+            system("#{ssh} #{cmd}")
+          else
+            ssh = "ssh #{connection[:user]}@#{connection[:ip]}"
+            system("#{ssh} #{cmd}")
+          end
+        end
+      end
 
       def test(id)
+        require 'byebug'
+        byebug
+      end
+
+      def settings
+        CONFIG.keys.each do |key|
+          puts "#{key}=#{CONFIG[key]}"
+        end
+        possible_options ={terminal: %w(xfce4-terminal gnome-terminal urxvt),
+                           deletion_interval: %w(never), tabbed: %w(true false),
+                          self: %w(true false)}
+
+        # change tabbed to mode %w(tabbed whatelse)
+        print "Want to change? (y/n)"
+        answer = STDIN.gets.chomp
+        comp = proc { |s| possible_options.values.flatten.grep(/^#{Regexp.escape(s)}/) }
+        Readline.completion_append_character = " "
+        Readline.completion_proc = comp
+        if answer == "y"
+          CONFIG.keys.each do |key|
+            puts "#{key}:".colorize(:green)
+            puts "possible options are: #{possible_options[key.to_sym]}"
+            puts "leave blank to not make any changes (TAB-Completion avalaible)"
+            input = Readline.readline('> ', true)
+            CONFIG[key] = input if input != ""
+          end
+          File.open(("#{File.join(ENV['HOME'])}/.config/sshm/settings.yml"),'w') do |h|
+               h.write CONFIG.to_yaml
+          end
+        else
+          exit
+        end
       end
 
       def transfer_file(filename, id='', dest_path="/home/#{user}/")
@@ -193,9 +242,21 @@ module SSH
       end
 
       def multiple_connection(term)
+        cons = []
         DATABASE.search_for(term).each do |x|
           x.all.each do |dataset|
-            self.connect_to([dataset[:id]])
+            cons.push(dataset)
+            require 'byebug'
+            byebug
+            puts "what yer gonna do?"
+            options = {execute_command: 'execute_command', connect_to: 'connect', ping: 'ping', info: 'info'}
+            comp = proc { |s| options.values.grep(/^#{Regexp.escape(s)}/) }
+            Readline.completion_append_character = " "
+            Readline.completion_proc = comp
+            puts options.values.to_s
+            Readline.readline('> ', true)           
+            # execute based of decision
+            #self.connect_to([dataset[:id]])
           end
         end
       end
