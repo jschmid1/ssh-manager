@@ -53,13 +53,13 @@ module SSH
           cli.new(@options).update_available
         elsif @options[:update]
           puts 'Updating ..'
-          cli.new(@options).update(@options[:update].to_i)
+          cli.new(@options).update(@options[:update])
         elsif @options[:multi]
           puts 'Connecting to multiple ips..'
           cli.new(@options).multiple_connection(@options[:multi])
         elsif @options[:transfer_key]
           puts 'Transfering key..'
-          cli.new(@options).transfer_key(@options[:transfer_key].to_i)
+          cli.new(@options).transfer_key(@options[:transfer_key])
         elsif @options[:encoding]
           puts 'coding key..'
           cli.new(@options).test(@options[:encoding].to_i)
@@ -89,7 +89,7 @@ module SSH
             @options[:add] = true
           end
           @options[:transfer_key] = false
-          opts.on( '-t', '--transferkey id', 'transfer key to <id>' ) do |opt|
+          opts.on( '-t', '--transferkey id,id,id', Array, 'transfer key to <id>' ) do |opt|
             @options[:transfer_key] = opt
           end
           @options[:transfer_file] = false
@@ -102,7 +102,7 @@ module SSH
             @options[:encoding] = encoding
           end
           @options[:connect] = false
-          opts.on( '-c', '--connect x y z', Array, 'connect to <ids>' ) do |opt|
+          opts.on( '-c', '--connect id1, id2, id3', Array, 'connect to <ids>' ) do |opt|
             @options[:connect] = opt
           end
           @options[:info] = false
@@ -122,7 +122,7 @@ module SSH
             @options[:delete] = opt
           end
           @options[:update] = false
-          opts.on( '-u', '--update id', 'update connection <id>' ) do |opt|
+          opts.on( '-u', '--update id,id,id',Array ,'update connection <id>' ) do |opt|
             @options[:update] = opt
           end
           @options[:search] = false

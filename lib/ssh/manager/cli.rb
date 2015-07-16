@@ -108,20 +108,24 @@ module SSH
       def transfer_key(id)
         #TODO connect_via
         #TODO options
-        connection = DATABASE.get_connection_by_id(id)
-        user = connection[:user]
-        user = ENV['USER'] if user == ""
-        %x(ssh-copy-id #{user}@#{connection[:ip]})
+        id.each do |con|
+          connection = DATABASE.get_connection_by_id(con)
+          user = connection[:user]
+          user = ENV['USER'] if user == ""
+          %x(ssh-copy-id #{user}@#{connection[:ip]})
+        end
       end
 
       def ping(id)
-        connection = DATABASE.get_connection_by_id(id)
+        id.each do |con|
+        connection = DATABASE.get_connection_by_id(con)
         if connection[:connect_via]
           connect_via = DATABASE.get_connection_by_id(connection[:connect_via])
           ssh = "ssh #{connect_via[:user]}@#{connect_via[:ip]}"
           exec("#{ssh} ping #{connection[:ip]} -c 3")
         else
           exec("ping #{connection[:ip]} -c 3")
+        end
         end
       end
 
@@ -219,14 +223,16 @@ module SSH
       end
 
       def update(id)
-        connection = DATABASE.get_connection_by_id(id)
-        @input_fields.each do |key|
-          #TODO make this a method
-          connection[key] = %x{source #{File.dirname(__FILE__)}/ask.sh; ask '#{@pretty_names[key]}' '#{connection[key]}'}.chomp
+        id.each do |con|
+          connection = DATABASE.get_connection_by_id(id)
+          @input_fields.each do |key|
+            #TODO make this a method
+            connection[key] = %x{source #{File.dirname(__FILE__)}/ask.sh; ask '#{@pretty_names[key]}' '#{connection[key]}'}.chomp
+          end
+          connection[:connect_via] = nil if connection[:connect_via] == ""
+          DATABASE.update_connection(connection)
+          #TODO catch SQLite3::ConstraintException
         end
-        connection[:connect_via] = nil if connection[:connect_via] == ""
-        DATABASE.update_connection(connection)
-        #TODO catch SQLite3::ConstraintException
       end
 
       def search_for(term)
@@ -242,22 +248,42 @@ module SSH
       end
 
       def multiple_connection(term)
-        cons = []
+        @cons = []
         DATABASE.search_for(term).each do |x|
           x.all.each do |dataset|
-            cons.push(dataset)
-            require 'byebug'
-            byebug
+            @cons.push(dataset)
+          end
+        end
+            # FAIL, first push everything in cons, then do the rest !
             puts "what yer gonna do?"
-            options = {execute_command: 'execute_command', connect_to: 'connect', ping: 'ping', info: 'info'}
+            options = {execute_command: 'execute_command', connect_to: 'connect', ping: 'ping', info: 'info', delete: 'delete'}
             comp = proc { |s| options.values.grep(/^#{Regexp.escape(s)}/) }
-            Readline.completion_append_character = " "
+            #Readline.completion_append_character = " "
             Readline.completion_proc = comp
             puts options.values.to_s
-            Readline.readline('> ', true)           
-            # execute based of decision
-            #self.connect_to([dataset[:id]])
-          end
+            input= Readline.readline('> ', true)           
+            ids = @cons.map {|x| x[:id].to_s}
+            input = input.chomp.gsub(/\s+\Z/, "")
+            case input
+            when 'execute_command'
+              # which commands
+              self.execute_command(ids)
+              exit
+            when 'connect'
+              self.connect_to(ids)
+              exit
+            when 'ping'
+              # exits after first ping
+              self.ping(ids)
+              exit
+            when 'info'
+              self.show_info(ids)
+              exit
+            when 'delete'
+              self.delete(ids)
+              exit
+            else
+              puts "That i dont know :/"
         end
       end
     end
