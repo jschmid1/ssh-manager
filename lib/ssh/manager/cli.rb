@@ -109,7 +109,7 @@ module SSH
         #TODO connect_via
         #TODO options
         id.each do |con|
-          connection = DATABASE.get_connection_by_id(con)
+          connection = DATABASE.get_connection_by_id(con.to_i)
           user = connection[:user]
           user = ENV['USER'] if user == ""
           %x(ssh-copy-id #{user}@#{connection[:ip]})
@@ -118,7 +118,7 @@ module SSH
 
       def ping(id)
         id.each do |con|
-        connection = DATABASE.get_connection_by_id(con)
+        connection = DATABASE.get_connection_by_id(con.to_i)
         if connection[:connect_via]
           connect_via = DATABASE.get_connection_by_id(connection[:connect_via])
           ssh = "ssh #{connect_via[:user]}@#{connect_via[:ip]}"
@@ -133,7 +133,7 @@ module SSH
         # id.first should be the command
         cmd = id.shift
         id.each do |con|
-          connection = DATABASE.get_connection_by_id(con)
+          connection = DATABASE.get_connection_by_id(con.to_i)
           if connection[:connect_via]
             connect_via = DATABASE.get_connection_by_id(connection[:connect_via])
             ssh = "ssh #{connect_via[:user]}@#{connect_via[:ip]}"
@@ -207,8 +207,7 @@ module SSH
 
       def delete(id)
         id.each do |conn|
-          conn.to_i
-          DATABASE.delete_connection(conn)
+          DATABASE.delete_connection(conn.to_i)
         end
       end
 
@@ -224,7 +223,7 @@ module SSH
 
       def update(id)
         id.each do |con|
-          connection = DATABASE.get_connection_by_id(id)
+          connection = DATABASE.get_connection_by_id(con.to_i)
           @input_fields.each do |key|
             #TODO make this a method
             connection[key] = %x{source #{File.dirname(__FILE__)}/ask.sh; ask '#{@pretty_names[key]}' '#{connection[key]}'}.chomp
@@ -267,6 +266,9 @@ module SSH
             case input
             when 'execute_command'
               # which commands
+              print "command: "
+              input = STDIN.gets.chomp
+              ids.unshift(input)
               self.execute_command(ids)
               exit
             when 'connect'

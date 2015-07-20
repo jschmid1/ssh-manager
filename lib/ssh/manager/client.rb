@@ -41,7 +41,7 @@ module SSH
           cli.new(@options).transfer_file(@options[:transfer_file].to_i, @argv[2], @argv[3])
         elsif @options[:ping]
           puts 'Pinging..'
-          cli.new(@options).ping(@options[:ping].to_i)
+          cli.new(@options).ping(@options[:ping])
         elsif @options[:delete]
           puts 'Deleting ..'
           cli.new(@options).delete(@options[:delete])
@@ -114,7 +114,7 @@ module SSH
             @options[:execute] = opt
           end
           @options[:ping] = false
-          opts.on( '-p', '--ping id', 'test connection of <id>' ) do |opt|
+          opts.on( '-p', '--ping id1, id2, i3', Array,  'test connection of <id>' ) do |opt|
             @options[:ping] = opt
           end
           @options[:delete] = false
